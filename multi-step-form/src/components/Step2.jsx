@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 
 const Step2 = ({ onNext, onPrev, updateFormData }) => {
+  const [monthlyBill, setMonthlyBill] = useState(""); // Renamed
+  const [propertyType, setPropertyType] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [sunlight, setSunlight] = useState(6); // Default to 6 hours
-  const [electricityRate, setElectricityRate] = useState(8); // Default to 8 ₹/kWh
+  const [sunlight, setSunlight] = useState(6); // Default 6 hours
+  const [rate, setRate] = useState(8); // Default ₹/kWh
 
   const detectLocation = () => {
     if (navigator.geolocation) {
@@ -14,7 +16,6 @@ const Step2 = ({ onNext, onPrev, updateFormData }) => {
           setLatitude(latitude.toFixed(6));
           setLongitude(longitude.toFixed(6));
 
-          // Estimate sunlight hours based on latitude (basic logic)
           let avgSunlight = 6;
           if (latitude >= 8 && latitude <= 12) avgSunlight = 7;
           else if (latitude >= 20 && latitude <= 28) avgSunlight = 5.5;
@@ -29,27 +30,41 @@ const Step2 = ({ onNext, onPrev, updateFormData }) => {
     }
   };
 
-  const adjustValue = (field, increment) => {
-    if (field === "sunlight") {
-      setSunlight((prev) => Math.max(0, prev + increment)); // Prevent negative sunlight
-    } else if (field === "electricityRate") {
-      setElectricityRate((prev) => Math.max(0, prev + increment)); // Prevent negative rate
-    }
-  };
-
   const handleSubmit = () => {
     updateFormData({
+      monthlyBill, // Corrected variable name
+      propertyType,
       latitude,
       longitude,
       sunlight,
-      electricityRate,
+      rate, // Corrected variable name
     });
     onNext();
   };
 
   return (
     <div className="step2-container">
-      <h2>Enter Location and Electricity Details</h2>
+      <h2>Enter Electricity and Location Details</h2>
+
+      <div className="form-group">
+        <label>Electricity Bill (₹/Month):</label>
+        <input
+          type="text"
+          value={monthlyBill}
+          onChange={(e) => setMonthlyBill(e.target.value)}
+          placeholder="Enter your monthly bill"
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Select Type:</label>
+        <select value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
+          <option value="">Select Type</option>
+          <option value="Residential">Residential</option>
+          <option value="Commercial">Commercial</option>
+          <option value="Industrial">Industrial</option>
+        </select>
+      </div>
 
       <div className="form-group">
         <label>Latitude:</label>
@@ -77,16 +92,12 @@ const Step2 = ({ onNext, onPrev, updateFormData }) => {
 
       <div className="form-group">
         <label>Sunlight Availability (Hours/Day):</label>
-        <div className="adjust-buttons">
-          <input type="number" value={sunlight} readOnly />
-        </div>
+        <input type="number" value={sunlight} readOnly />
       </div>
 
       <div className="form-group">
         <label>Electricity Rate (₹/kWh):</label>
-        <div className="adjust-buttons">
-          <input type="number" value={electricityRate} readOnly />
-        </div>
+        <input type="number" value={rate} readOnly />
       </div>
 
       <div className="navigation-buttons">
